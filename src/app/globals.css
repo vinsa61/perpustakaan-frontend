@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --sage-green: #879D82;
+  --terracotta: #E2725B;
+  --light-tan: #D2B48C;
+  --light-sky-blue: #A7C7E7;
+  --warm-white: #FDFBF7;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  background-color: var(--warm-white);
+  color: #333;
+  font-family: 'Inter', sans-serif;
+}
