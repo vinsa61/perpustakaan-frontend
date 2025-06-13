@@ -3,18 +3,30 @@ import { GetServerSidePropsContext } from "next/types";
 import Cookies from "universal-cookie";
 
 import { getToken } from "@/lib/cookies";
-import { UninterceptedApiError, ApiResponse, PaginatedApiResponse } from "@/types/api";
-import { BookshelfApiResponse, BorrowingHistory, BookshelfStats } from '@/types';
+import {
+  UninterceptedApiError,
+  ApiResponse,
+  PaginatedApiResponse,
+} from "@/types/api";
+import {
+  BookshelfApiResponse,
+  BorrowingHistory,
+  BookshelfStats,
+} from "@/types";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
 
 class BookshelfService {
-  private async makeRequest<T>(endpoint: string, options?: RequestInit): Promise<T> {
-    const token = localStorage.getItem('token');
-    
+  private async makeRequest<T>(
+    endpoint: string,
+    options?: RequestInit
+  ): Promise<T> {
+    const token = localStorage.getItem("token");
+
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         ...(token && { Authorization: `Bearer ${token}` }),
         ...options?.headers,
       },
@@ -23,7 +35,7 @@ class BookshelfService {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || 'Request failed');
+      throw new Error(error.message || "Request failed");
     }
 
     return response.json();
@@ -33,26 +45,30 @@ class BookshelfService {
   async getBookshelf(
     userId: number,
     params?: {
-      status?: 'borrowed' | 'returned' | 'dipinjam' | 'selesai';
+      status?: "borrowed" | "returned" | "dipinjam" | "selesai";
       page?: number;
       limit?: number;
     }
   ): Promise<BookshelfApiResponse> {
     const searchParams = new URLSearchParams();
-    
-    if (params?.status) searchParams.append('status', params.status);
-    if (params?.page) searchParams.append('page', params.page.toString());
-    if (params?.limit) searchParams.append('limit', params.limit.toString());
+
+    if (params?.status) searchParams.append("status", params.status);
+    if (params?.page) searchParams.append("page", params.page.toString());
+    if (params?.limit) searchParams.append("limit", params.limit.toString());
 
     const query = searchParams.toString();
-    const endpoint = `/bookshelf/${userId}${query ? `?${query}` : ''}`;
-    
+    const endpoint = `/bookshelf/${userId}${query ? `?${query}` : ""}`;
+
     return this.makeRequest<BookshelfApiResponse>(endpoint);
   }
 
   // Get bookshelf summary
-  async getBookshelfSummary(userId: number): Promise<ApiResponse<BookshelfStats>> {
-    return this.makeRequest<ApiResponse<BookshelfStats>>(`/bookshelf/${userId}/summary`);
+  async getBookshelfSummary(
+    userId: number
+  ): Promise<ApiResponse<BookshelfStats>> {
+    return this.makeRequest<ApiResponse<BookshelfStats>>(
+      `/bookshelf/${userId}/summary`
+    );
   }
 
   // Get borrowing history
@@ -61,13 +77,13 @@ class BookshelfService {
     params?: { page?: number; limit?: number }
   ): Promise<ApiResponse<BorrowingHistory[]>> {
     const searchParams = new URLSearchParams();
-    
-    if (params?.page) searchParams.append('page', params.page.toString());
-    if (params?.limit) searchParams.append('limit', params.limit.toString());
+
+    if (params?.page) searchParams.append("page", params.page.toString());
+    if (params?.limit) searchParams.append("limit", params.limit.toString());
 
     const query = searchParams.toString();
-    const endpoint = `/bookshelf/${userId}/history${query ? `?${query}` : ''}`;
-    
+    const endpoint = `/bookshelf/${userId}/history${query ? `?${query}` : ""}`;
+
     return this.makeRequest<ApiResponse<BorrowingHistory[]>>(endpoint);
   }
 }
@@ -133,7 +149,7 @@ api.interceptors.response.use(
       });
     }
     return Promise.reject(error);
-  },
+  }
 );
 
 // API Service Class
@@ -144,43 +160,24 @@ class ApiService {
     username: string;
     email: string;
     password: string;
-    academic_role: 'mahasiswa' | 'dosen' | 'tendik';
+    academic_role: "mahasiswa" | "dosen" | "tendik";
     no_induk: string;
   }): Promise<ApiResponse<any>> {
-    const response = await api.post('/auth/register', userData);
-    
-    // Store token if login successful
-    if (response.data.success && response.data.token) {
-      if (isBrowser) {
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.data));
-      }
-    }
-    
+    const response = await api.post("/auth/register", userData);
     return response.data;
   }
-
-  async login(credentials: { 
-    username: string; 
-    password: string; 
+  async login(credentials: {
+    username: string;
+    password: string;
   }): Promise<ApiResponse<any>> {
-    const response = await api.post('/auth/login', credentials);
-    
-    // Store token if login successful
-    if (response.data.success && response.data.token) {
-      if (isBrowser) {
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.data));
-      }
-    }
-    
+    const response = await api.post("/auth/login", credentials);
     return response.data;
   }
 
   async logout() {
     if (isBrowser) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
     }
   }
 
@@ -191,7 +188,7 @@ class ApiService {
     page?: number;
     limit?: number;
   }): Promise<PaginatedApiResponse<any[]>> {
-    const response = await api.get('/books', { params });
+    const response = await api.get("/books", { params });
     return response.data;
   }
 
@@ -207,31 +204,34 @@ class ApiService {
     page?: number;
     limit?: number;
   }): Promise<PaginatedApiResponse<any[]>> {
-    const response = await api.get('/requests', { params });
+    const response = await api.get("/requests", { params });
     return response.data;
   }
 
   async updateRequestStatus(
-    id: string, 
-    status: 'approved' | 'rejected'
+    id: string,
+    status: "approved" | "rejected"
   ): Promise<ApiResponse<any>> {
     const response = await api.patch(`/requests/${id}`, { status });
     return response.data;
   }
 
   // Bookshelf API
-  async getBookshelf(userId: string, params?: {
-    status?: string;
-    page?: number;
-    limit?: number;
-  }): Promise<PaginatedApiResponse<any>> {
+  async getBookshelf(
+    userId: string,
+    params?: {
+      status?: string;
+      page?: number;
+      limit?: number;
+    }
+  ): Promise<PaginatedApiResponse<any>> {
     const response = await api.get(`/bookshelf/${userId}`, { params });
     return response.data;
   }
 
   // Borrow Request API (if you need to add this functionality)
   async createBorrowRequest(bookIds: number[]): Promise<ApiResponse<any>> {
-    const response = await api.post('/borrow/request', { bookIds });
+    const response = await api.post("/borrow/request", { bookIds });
     return response.data;
   }
 
