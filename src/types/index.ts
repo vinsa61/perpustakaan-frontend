@@ -12,12 +12,12 @@ export interface Anggota {
   username: string;
   email: string;
   password?: string;
-  academic_role: 'mahasiswa' | 'dosen' | 'tendik';
+  academic_role: "mahasiswa" | "dosen" | "tendik";
   no_induk: string;
 }
 
 export interface User extends Anggota {
-  account_type: 'admin' | 'member';
+  account_type: "admin" | "member";
   token?: string;
 }
 
@@ -57,7 +57,7 @@ export interface Peminjaman {
   id: number;
   tanggal_pinjam: string;
   tenggat_pengembalian: string;
-  status: 'dipinjam' | 'selesai';
+  status: "dipinjam" | "selesai";
   user_id: number;
 }
 
@@ -80,7 +80,7 @@ export interface BorrowRequest {
   user_id: number;
   book_id: number;
   request_type: string;
-  status: 'pending' | 'approved' | 'rejected' | 'dipinjam' | 'selesai';
+  status: "pending" | "approved" | "rejected" | "dipinjam" | "selesai";
   created_at: string;
   tanggal_pinjam: string;
   tenggat_pengembalian: string;
@@ -98,36 +98,46 @@ export interface BorrowRequest {
 
 export interface BookshelfBook {
   peminjaman_id: number;
+  detail_id: number;
   book_id: number;
   book_title: string;
-  book_author: string;
+  book_authors: string[];
   kategori: string;
   tahun_terbit: number;
   stok: number;
   tersedia: boolean;
-  publisher: string;
-  publisher_address: string;
-  publisher_city: string;
-  tanggal_pinjam: string;
-  tenggat_pengembalian: string;
-  status: 'dipinjam' | 'selesai';
-  book_status: 'borrowed' | 'returned';
-  tanggal_dikembalikan?: string;
-  denda: number;
-  request_date: string;
+  publisher: {
+    name: string;
+    address: string;
+    city: string;
+  };
+  borrow_info: {
+    tanggal_pinjam: string;
+    tenggat_pengembalian: string;
+    peminjaman_status: "dipinjam" | "selesai";
+    current_status: "borrowed" | "returned" | "completed";
+    status_detail: "overdue" | "active" | "returned" | "completed";
+    days_overdue: number;
+  };
+  return_info: {
+    tanggal_dikembalikan: string;
+    denda: number;
+    admin_id: number;
+    admin_name: string;
+  } | null;
 }
 
 export interface BookshelfSummary {
   total_requests: number;
-  borrowed: number;
+  active_borrowed: number;
   returned: number;
-  dipinjam: number;
-  selesai: number;
+  completed: number;
+  overdue: number;
 }
 
 export interface BookshelfData {
   user: Anggota | null;
-  books: BookshelfBook[];
+  borrow_requests: BookshelfBook[];
   summary: BookshelfSummary;
 }
 
@@ -145,14 +155,14 @@ export interface BookshelfApiResponse {
 
 export interface BorrowingHistory {
   id: number;
-  aksi: 'pinjam' | 'kembali';
+  aksi: "pinjam" | "kembali";
   tanggal_aksi: string;
   jumlah_buku: number;
   keterangan?: string;
   peminjaman_id: number;
   tanggal_pinjam: string;
   tenggat_pengembalian: string;
-  peminjaman_status: 'dipinjam' | 'selesai';
+  peminjaman_status: "dipinjam" | "selesai";
 }
 
 export interface BookshelfStats {
@@ -167,14 +177,14 @@ export interface VwDaftarPeminjamanAnggota {
   peminjaman_id: number;
   tanggal_pinjam: string;
   tenggat_pengembalian: string;
-  status: 'dipinjam' | 'selesai';
+  status: "dipinjam" | "selesai";
   anggota_id: number;
   nama_anggota: string;
   no_induk: string;
-  academic_role: 'mahasiswa' | 'dosen' | 'tendik';
+  academic_role: "mahasiswa" | "dosen" | "tendik";
   jumlah_buku: number;
   daftar_buku: string;
-  status_peminjaman: 'Terlambat' | 'Aktif' | 'Selesai';
+  status_peminjaman: "Terlambat" | "Aktif" | "Selesai";
   hari_terlambat: number;
 }
 
@@ -182,12 +192,12 @@ export interface VwDaftarPeminjamanPerpustakaan {
   peminjaman_id: number;
   nama_peminjam: string;
   no_induk: string;
-  academic_role: 'mahasiswa' | 'dosen' | 'tendik';
+  academic_role: "mahasiswa" | "dosen" | "tendik";
   tanggal_pinjam: string;
   tenggat_pengembalian: string;
-  status: 'dipinjam' | 'selesai';
+  status: "dipinjam" | "selesai";
   total_buku_dipinjam: number;
-  status_detail: 'Terlambat' | 'Dipinjam' | 'Dikembalikan';
+  status_detail: "Terlambat" | "Dipinjam" | "Dikembalikan";
   hari_keterlambatan: number;
   estimasi_denda: number;
 }
@@ -197,7 +207,7 @@ export interface VwDaftarPengembalian {
   peminjaman_id: number;
   nama_peminjam: string;
   no_induk: string;
-  academic_role: 'mahasiswa' | 'dosen' | 'tendik';
+  academic_role: "mahasiswa" | "dosen" | "tendik";
   tanggal_pinjam: string;
   tenggat_pengembalian: string;
   tanggal_dikembalikan: string;
@@ -206,7 +216,11 @@ export interface VwDaftarPengembalian {
   jumlah_buku_dikembalikan: number;
   daftar_buku_dikembalikan: string;
   hari_terlambat: number;
-  kategori_keterlambatan: 'Tepat Waktu' | 'Terlambat (1-7 hari)' | 'Terlambat (1-4 minggu)' | 'Sangat Terlambat (>1 bulan)';
+  kategori_keterlambatan:
+    | "Tepat Waktu"
+    | "Terlambat (1-7 hari)"
+    | "Terlambat (1-4 minggu)"
+    | "Sangat Terlambat (>1 bulan)";
 }
 
 export interface VwLaporanBukuSeringDipinjam {
@@ -223,7 +237,11 @@ export interface VwLaporanBukuSeringDipinjam {
   rata_rata_hari_pinjam?: number;
   sedang_dipinjam: number;
   persentase_dari_total_peminjaman: number;
-  kategori_popularitas: 'Sangat Populer' | 'Populer' | 'Cukup Populer' | 'Jarang Dipinjam';
+  kategori_popularitas:
+    | "Sangat Populer"
+    | "Populer"
+    | "Cukup Populer"
+    | "Jarang Dipinjam";
 }
 
 export interface VwStatistikPerpustakaan {

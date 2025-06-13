@@ -8,87 +8,9 @@ import {
   ApiResponse,
   PaginatedApiResponse,
 } from "@/types/api";
-import {
-  BookshelfApiResponse,
-  BorrowingHistory,
-  BookshelfStats,
-} from "@/types";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
-
-class BookshelfService {
-  private async makeRequest<T>(
-    endpoint: string,
-    options?: RequestInit
-  ): Promise<T> {
-    const token = localStorage.getItem("token");
-
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      headers: {
-        "Content-Type": "application/json",
-        ...(token && { Authorization: `Bearer ${token}` }),
-        ...options?.headers,
-      },
-      ...options,
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || "Request failed");
-    }
-
-    return response.json();
-  }
-
-  // Get user's bookshelf
-  async getBookshelf(
-    userId: number,
-    params?: {
-      status?: "borrowed" | "returned" | "dipinjam" | "selesai";
-      page?: number;
-      limit?: number;
-    }
-  ): Promise<BookshelfApiResponse> {
-    const searchParams = new URLSearchParams();
-
-    if (params?.status) searchParams.append("status", params.status);
-    if (params?.page) searchParams.append("page", params.page.toString());
-    if (params?.limit) searchParams.append("limit", params.limit.toString());
-
-    const query = searchParams.toString();
-    const endpoint = `/bookshelf/${userId}${query ? `?${query}` : ""}`;
-
-    return this.makeRequest<BookshelfApiResponse>(endpoint);
-  }
-
-  // Get bookshelf summary
-  async getBookshelfSummary(
-    userId: number
-  ): Promise<ApiResponse<BookshelfStats>> {
-    return this.makeRequest<ApiResponse<BookshelfStats>>(
-      `/bookshelf/${userId}/summary`
-    );
-  }
-
-  // Get borrowing history
-  async getBorrowingHistory(
-    userId: number,
-    params?: { page?: number; limit?: number }
-  ): Promise<ApiResponse<BorrowingHistory[]>> {
-    const searchParams = new URLSearchParams();
-
-    if (params?.page) searchParams.append("page", params.page.toString());
-    if (params?.limit) searchParams.append("limit", params.limit.toString());
-
-    const query = searchParams.toString();
-    const endpoint = `/bookshelf/${userId}/history${query ? `?${query}` : ""}`;
-
-    return this.makeRequest<ApiResponse<BorrowingHistory[]>>(endpoint);
-  }
-}
-
-export const bookshelfService = new BookshelfService();
 const context = <GetServerSidePropsContext>{};
 
 export const baseURL =
@@ -215,17 +137,37 @@ class ApiService {
     const response = await api.patch(`/requests/${id}`, { status });
     return response.data;
   }
-
   // Bookshelf API
   async getBookshelf(
     userId: string,
     params?: {
-      status?: string;
+      status?:
+        | "borrowed"
+        | "returned"
+        | "completed"
+        | "overdue"
+        | "dipinjam"
+        | "selesai";
       page?: number;
       limit?: number;
     }
-  ): Promise<PaginatedApiResponse<any>> {
+  ): Promise<ApiResponse<any>> {
     const response = await api.get(`/bookshelf/${userId}`, { params });
+    return response.data;
+  }
+
+  // Get bookshelf summary
+  async getBookshelfSummary(userId: string): Promise<ApiResponse<any>> {
+    const response = await api.get(`/bookshelf/${userId}/summary`);
+    return response.data;
+  }
+
+  // Get borrowing history
+  async getBorrowingHistory(
+    userId: string,
+    params?: { page?: number; limit?: number }
+  ): Promise<ApiResponse<any>> {
+    const response = await api.get(`/bookshelf/${userId}/history`, { params });
     return response.data;
   }
 
