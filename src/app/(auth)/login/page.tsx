@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
+import { apiService } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -22,17 +23,27 @@ export default function LoginPage() {
       [e.target.name]: e.target.value,
     }));
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
     try {
-      await login(formData.username, formData.password);
-      router.push("/");
+      const response = await apiService.login({
+        username: formData.username,
+        password: formData.password,
+      });
+
+      // The API service already stores the token and user data
+      // Just need to call the useAuth login method to sync the state
+      if ((response as any).success) {
+        login((response as any).token, (response as any).data);
+        router.push("/");
+      } else {
+        setError(response.message || "Login failed");
+      }
     } catch (error: any) {
-      setError(error.message);
+      setError(error.message || "Login failed");
     } finally {
       setLoading(false);
     }

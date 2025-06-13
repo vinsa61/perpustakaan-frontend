@@ -1,78 +1,102 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useAuth } from '@/contexts/AuthContext'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
+import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { apiService } from "@/lib/api";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
-    nama: '',
-    username: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    academic_role: 'mahasiswa' as 'mahasiswa' | 'dosen' | 'tendik',
-    no_induk: ''
-  })
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  
-  const { register } = useAuth()
-  const router = useRouter()
+    nama: "",
+    username: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    academic_role: "mahasiswa" as "mahasiswa" | "dosen" | "tendik",
+    no_induk: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData(prev => ({
+  const { login } = useAuth();
+  const router = useRouter();
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value
-    }))
-  }
+      [e.target.name]: e.target.value,
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
     // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match')
-      setLoading(false)
-      return
+      setError("Passwords do not match");
+      setLoading(false);
+      return;
     }
-
     try {
-      await register({
+      const response = await apiService.register({
         nama: formData.nama,
         username: formData.username,
         email: formData.email,
         password: formData.password,
         academic_role: formData.academic_role,
-        no_induk: formData.no_induk
-      })
-      router.push('/')
+        no_induk: formData.no_induk,
+      });
+
+      if ((response as any).success) {
+        // Auto-login after successful registration
+        const loginResponse = await apiService.login({
+          username: formData.username,
+          password: formData.password,
+        });
+
+        if ((loginResponse as any).success) {
+          login((loginResponse as any).token, (loginResponse as any).data);
+          router.push("/");
+        }
+      } else {
+        setError(response.message || "Registration failed");
+      }
     } catch (error: any) {
-      setError(error.message)
+      setError(error.message);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="bg-white py-8 px-6 shadow-lg rounded-lg">
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold" style={{ color: '#879D82' }}>
+        <h2 className="text-3xl font-bold" style={{ color: "#879D82" }}>
           Create Account
         </h2>
-        <p className="mt-2 text-gray-600">
-          Join our digital library community
-        </p>
+        <p className="mt-2 text-gray-600">Join our digital library community</p>
       </div>
 
       {error && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
           <div className="flex">
-            <svg className="w-5 h-5 text-red-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg
+              className="w-5 h-5 text-red-400 mt-0.5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
             <div className="ml-3">
               <p className="text-sm text-red-800">{error}</p>
@@ -83,7 +107,10 @@ export default function RegisterPage() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label htmlFor="nama" className="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            htmlFor="nama"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             Full Name
           </label>
           <input
@@ -99,7 +126,10 @@ export default function RegisterPage() {
         </div>
 
         <div>
-          <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            htmlFor="username"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             Username
           </label>
           <input
@@ -115,7 +145,10 @@ export default function RegisterPage() {
         </div>
 
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            htmlFor="email"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             Email Address
           </label>
           <input
@@ -131,7 +164,10 @@ export default function RegisterPage() {
         </div>
 
         <div>
-          <label htmlFor="academic_role" className="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            htmlFor="academic_role"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             Academic Role
           </label>
           <select
@@ -149,7 +185,10 @@ export default function RegisterPage() {
         </div>
 
         <div>
-          <label htmlFor="no_induk" className="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            htmlFor="no_induk"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             ID Number
           </label>
           <input
@@ -165,7 +204,10 @@ export default function RegisterPage() {
         </div>
 
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            htmlFor="password"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             Password
           </label>
           <input
@@ -181,7 +223,10 @@ export default function RegisterPage() {
         </div>
 
         <div>
-          <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            htmlFor="confirmPassword"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             Confirm Password
           </label>
           <input
@@ -200,7 +245,7 @@ export default function RegisterPage() {
           type="submit"
           disabled={loading}
           className="w-full py-3 px-4 border border-transparent rounded-lg text-white font-medium hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-          style={{ backgroundColor: '#879D82' }}
+          style={{ backgroundColor: "#879D82" }}
         >
           {loading ? (
             <div className="flex items-center justify-center">
@@ -208,19 +253,23 @@ export default function RegisterPage() {
               Creating Account...
             </div>
           ) : (
-            'Create Account'
+            "Create Account"
           )}
         </button>
 
         <div className="text-center">
           <p className="text-sm text-gray-600">
-            Already have an account?{' '}
-            <Link href="/login" className="font-medium hover:underline" style={{ color: '#879D82' }}>
+            Already have an account?{" "}
+            <Link
+              href="/login"
+              className="font-medium hover:underline"
+              style={{ color: "#879D82" }}
+            >
               Sign in here
             </Link>
           </p>
         </div>
       </form>
     </div>
-  )
+  );
 }

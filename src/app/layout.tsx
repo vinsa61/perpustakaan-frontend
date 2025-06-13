@@ -2,7 +2,6 @@ import "./globals.css";
 
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { AuthProvider } from "@/contexts/AuthContext";
 
 import Providers from "@/app/providers";
 import Navbar from "@/layouts/Navbar";
@@ -26,13 +25,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <AuthProvider>
-          <Providers>
-            <Navbar />
-            {children}
-            <Footer />
-          </Providers>
-        </AuthProvider>
+        <Providers>
+          <Navbar />
+          {children}
+          <Footer />
+        </Providers>
       </body>
     </html>
   );

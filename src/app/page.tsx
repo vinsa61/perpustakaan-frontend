@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { Buku } from "@/types"; // Changed from Book to Buku
 import { apiService } from "@/lib/api";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
+import BookCard from "@/components/books/BookCard";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -19,7 +20,6 @@ export default function LandingPage() {
   useEffect(() => {
     fetchFeaturedBooks();
   }, []);
-
   const fetchFeaturedBooks = async () => {
     try {
       setLoading(true);
@@ -41,18 +41,6 @@ export default function LandingPage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const formatAuthors = (pengarang: Buku["pengarang"] | undefined) => {
-    if (!pengarang) {
-      return "Unknown Author";
-    }
-    if (Array.isArray(pengarang)) {
-      return pengarang
-        .map((author) => `${author.nama_depan} ${author.nama_belakang}`)
-        .join(", ");
-    }
-    return "Unknown Author";
   };
 
   return (
@@ -244,57 +232,11 @@ export default function LandingPage() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {featuredBooks.map((book) => (
-                <div
+                <BookCard
                   key={book.id}
-                  className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-6"
-                >
-                  <div className="relative w-full h-64 mb-4">
-                    <Image
-                      src={book.cover_image || "/images/placeholder-book.jpg"}
-                      alt={book.judul}
-                      fill
-                      className="object-contain rounded-lg"
-                    />
-                  </div>
-
-                  <h3 className="text-lg font-semibold mb-2 line-clamp-2">
-                    {book.judul}
-                  </h3>
-                  <p className="text-gray-600 text-sm mb-2">
-                    by {formatAuthors(book.pengarang)}
-                  </p>
-                  <p className="text-gray-500 text-xs mb-2">
-                    Published in {book.tahun_terbit}
-                  </p>
-                  <p className="text-gray-600 text-sm line-clamp-3 mb-4">
-                    {book.synopsis || "No synopsis available."}
-                  </p>
-
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center space-x-2">
-                      <span
-                        className={`px-2 py-1 text-xs rounded-full ${
-                          book.tersedia
-                            ? "bg-green-100 text-green-800"
-                            : "bg-red-100 text-red-800"
-                        }`}
-                      >
-                        {book.tersedia ? "Available" : "Unavailable"}
-                      </span>
-                      <span className="text-xs text-gray-500">
-                        {book.stok} left
-                      </span>
-                    </div>
-
-                    <Link
-                      href={`/books/${book.id}`}
-                      className="px-4 py-2 rounded-lg text-white text-sm font-medium hover:opacity-90 transition-opacity"
-                      style={{ backgroundColor: "#879D82" }}
-                    >
-                      View Details
-                    </Link>
-                  </div>
-                </div>
+                  book={book}
+                  onBorrowSuccess={fetchFeaturedBooks}
+                />
               ))}
             </div>
           )}

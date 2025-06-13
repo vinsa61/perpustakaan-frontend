@@ -1,14 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { Buku } from "@/types";
 import { apiService } from "@/lib/api";
-import { useAuth } from "@/contexts/AuthContext";
-import Image from "next/image";
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import BookCard from "@/components/books/BookCard";
+import { useSearchParams } from "next/navigation";
 
-export default function BooksPage() {
+function BooksContent() {
   const [books, setBooks] = useState<Buku[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -17,8 +15,6 @@ export default function BooksPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  const { user } = useAuth();
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   useEffect(() => {
@@ -56,52 +52,10 @@ export default function BooksPage() {
       setLoading(false);
     }
   };
-
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setCurrentPage(1);
     fetchBooks();
-  };
-
-  const handleBorrowRequest = async (bookId: number) => {
-    if (!user) {
-      router.push("/login");
-      return;
-    }
-
-    try {
-      const response = await apiService.createBorrowRequest([bookId]);
-      if (response.status) {
-        alert("Borrow request submitted successfully!");
-        fetchBooks();
-      } else {
-        alert(response.message);
-      }
-    } catch (error: any) {
-      alert("Failed to submit borrow request");
-    }
-  };
-
-  const formatAuthors = (pengarang: any) => {
-    if (typeof pengarang === "string") {
-      return pengarang;
-    }
-    if (Array.isArray(pengarang)) {
-      return pengarang
-        .map((author) => `${author.nama_depan} ${author.nama_belakang}`)
-        .join(", ");
-    }
-    return "Unknown Author";
-  };
-
-  const getPublisherName = (book: Buku) => {
-    if (book.penerbit) {
-      return book.penerbit.nama;
-    }
-    if (book.penerbit_nama) {
-      return book.penerbit_nama;
-    }
-    return "Unknown Publisher";
   };
 
   return (
@@ -200,75 +154,11 @@ export default function BooksPage() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {books.map((book) => (
-              <div
+              <BookCard
                 key={book.id}
-                className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-6"
-              >
-                <div className="relative w-full h-64 mb-4">
-                  <Image
-                    src={book.cover_image || "/images/placeholder-book.jpg"}
-                    alt={book.judul}
-                    fill
-                    className="object-contain rounded-lg"
-                  />
-                </div>
-
-                <h3 className="text-lg font-semibold mb-2 line-clamp-2">
-                  {book.judul}
-                </h3>
-                <p className="text-gray-600 text-sm mb-2">
-                  by {formatAuthors(book.pengarang)}
-                </p>
-                <p className="text-gray-500 text-xs mb-2">
-                  Published in {book.tahun_terbit}
-                </p>
-                <p className="text-gray-500 text-xs mb-2">
-                  Publisher: {getPublisherName(book)}
-                </p>
-                <p className="text-gray-600 text-sm line-clamp-3 mb-4">
-                  {book.synopsis || "No synopsis available."}
-                </p>
-
-                <div className="flex justify-between items-center mb-4">
-                  <div className="flex items-center space-x-2">
-                    <span
-                      className={`px-2 py-1 text-xs rounded-full ${
-                        book.tersedia
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
-                    >
-                      {book.tersedia ? "Available" : "Unavailable"}
-                    </span>
-                    <span className="text-xs text-gray-500">
-                      {book.stok} left
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex gap-2">
-                  <Link
-                    href={`/books/${book.id}`}
-                    className="flex-1 px-3 py-2 border rounded-lg text-center text-sm font-medium hover:bg-gray-50 transition-colors"
-                    style={{
-                      borderColor: "#879D82",
-                      color: "#879D82",
-                    }}
-                  >
-                    View Details
-                  </Link>
-
-                  {user && book.tersedia && (
-                    <button
-                      onClick={() => handleBorrowRequest(book.id)}
-                      className="px-3 py-2 rounded-lg text-white text-sm font-medium hover:opacity-90 transition-opacity"
-                      style={{ backgroundColor: "#879D82" }}
-                    >
-                      Borrow
-                    </button>
-                  )}
-                </div>
-              </div>
+                book={book}
+                onBorrowSuccess={fetchBooks}
+              />
             ))}
           </div>
         )}
@@ -300,8 +190,24 @@ export default function BooksPage() {
               </button>
             </nav>
           </div>
-        )}
-      </div>
+        )}      </div>
     </div>
+  );
+}
+
+export default function BooksPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen py-8" style={{ backgroundColor: "#FDFBF7" }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 mx-auto mb-4" style={{ borderColor: "#879D82" }}></div>
+            <p className="text-gray-600">Loading books...</p>
+          </div>
+        </div>
+      </div>
+    }>
+      <BooksContent />
+    </Suspense>
   );
 }
