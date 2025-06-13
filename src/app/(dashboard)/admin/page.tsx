@@ -24,7 +24,6 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (!user) {
-      router.push("/login");
       return;
     }
 
@@ -34,7 +33,7 @@ export default function AdminPage() {
     }
 
     fetchRequests();
-  }, [filter, currentPage, user, isAdmin]);
+  }, [filter, currentPage, user]);
 
   const fetchRequests = async () => {
     try {
