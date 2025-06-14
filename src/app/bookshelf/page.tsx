@@ -29,6 +29,13 @@ export default function BookShelfPage() {
   const [bookshelfData, setBookshelfData] = useState<BookshelfData | null>(
     null
   );
+  const [statistics, setStatistics] = useState({
+    total_requests: 0,
+    waiting_approval: 0,
+    borrowed: 0,
+    returned: 0,
+    completed: 0,
+  });
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 10,
@@ -68,12 +75,25 @@ export default function BookShelfPage() {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     if (isAuthenticated && user) {
       fetchBookshelf(currentPage, statusFilter);
+      fetchStatistics();
     }
   }, [isAuthenticated, user, currentPage, statusFilter]);
+
+  const fetchStatistics = async () => {
+    if (!user?.id) return;
+    
+    try {
+      const response = await apiService.getBookshelfStatistics(user.id.toString());
+      if (response.success) {
+        setStatistics(response.data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch bookshelf statistics:", error);
+    }
+  };
 
   const handleStatusFilter = (status: string) => {
     setStatusFilter(status);
@@ -143,43 +163,39 @@ export default function BookShelfPage() {
           <p className="text-gray-600 mt-2">
             Manage your borrowed books and view your reading history
           </p>
-        </div>
-
-        {/* Summary Cards */}
-        {bookshelfData?.summary && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="text-2xl font-bold text-blue-600">
-                {bookshelfData.summary.total_requests}
-              </div>
-              <div className="text-sm text-gray-600">Total Requests</div>
+        </div>        {/* Statistics Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="text-2xl font-bold text-blue-600">
+              {statistics.total_requests}
             </div>
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="text-2xl font-bold text-green-600">
-                {bookshelfData.summary.active_borrowed}
-              </div>
-              <div className="text-sm text-gray-600">Borrowed</div>
-            </div>
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="text-2xl font-bold text-purple-600">
-                {bookshelfData.summary.returned}
-              </div>
-              <div className="text-sm text-gray-600">Returned</div>
-            </div>
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="text-2xl font-bold text-gray-600">
-                {bookshelfData.summary.completed}
-              </div>
-              <div className="text-sm text-gray-600">Completed</div>
-            </div>{" "}
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="text-2xl font-bold text-yellow-600">
-                {bookshelfData.summary.waiting_approval || 0}
-              </div>
-              <div className="text-sm text-gray-600">Waiting for Approval</div>
-            </div>
+            <div className="text-sm text-gray-600">Total Requests</div>
           </div>
-        )}
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="text-2xl font-bold text-yellow-600">
+              {statistics.waiting_approval}
+            </div>
+            <div className="text-sm text-gray-600">Waiting for Approval</div>
+          </div>
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="text-2xl font-bold text-green-600">
+              {statistics.borrowed}
+            </div>
+            <div className="text-sm text-gray-600">Borrowed</div>
+          </div>
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="text-2xl font-bold text-orange-600">
+              {statistics.returned}
+            </div>
+            <div className="text-sm text-gray-600">Returned</div>
+          </div>
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="text-2xl font-bold text-purple-600">
+              {statistics.completed}
+            </div>
+            <div className="text-sm text-gray-600">Completed</div>
+          </div>
+        </div>
 
         {/* Filters */}
         <div className="bg-white rounded-lg shadow mb-6 p-6">

@@ -9,6 +9,13 @@ import { formatDate } from "@/utils/dateUtils";
 
 export default function AdminPage() {
   const [requests, setRequests] = useState<AdminRequest[]>([]);
+  const [statistics, setStatistics] = useState({
+    total_requests: 0,
+    waiting_approval: 0,
+    borrowed: 0,
+    returned: 0,
+    completed: 0,
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [filter, setFilter] = useState<
@@ -30,10 +37,20 @@ export default function AdminPage() {
     if (!isAdmin) {
       router.push("/");
       return;
-    }
-
-    fetchRequests();
+    }    fetchRequests();
+    fetchStatistics();
   }, [filter, currentPage, user]);
+
+  const fetchStatistics = async () => {
+    try {
+      const response = await apiService.getAdminStatistics();
+      if (response.success) {
+        setStatistics(response.data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch statistics:", error);
+    }
+  };
   const fetchRequests = async () => {
     try {
       setLoading(true);
@@ -46,9 +63,7 @@ export default function AdminPage() {
       }
       const response: AdminRequestsResponse = await apiService.getRequests(
         params
-      );
-
-      if (response.success) {
+      );      if (response.success) {
         setRequests(response.data || []);
         setTotalPages(response.pagination?.totalPages || 1);
         setError("");
@@ -133,8 +148,42 @@ export default function AdminPage() {
           </h1>
           <p className="text-gray-600">
             Manage borrow requests and library operations
-          </p>
-        </div>{" "}
+          </p>        </div>
+
+        {/* Statistics Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="text-2xl font-bold text-blue-600">
+              {statistics.total_requests}
+            </div>
+            <div className="text-sm text-gray-600">Total Requests</div>
+          </div>
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="text-2xl font-bold text-yellow-600">
+              {statistics.waiting_approval}
+            </div>
+            <div className="text-sm text-gray-600">Waiting for Approval</div>
+          </div>
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="text-2xl font-bold text-green-600">
+              {statistics.borrowed}
+            </div>
+            <div className="text-sm text-gray-600">Borrowed</div>
+          </div>
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="text-2xl font-bold text-orange-600">
+              {statistics.returned}
+            </div>
+            <div className="text-sm text-gray-600">Returned</div>
+          </div>
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="text-2xl font-bold text-purple-600">
+              {statistics.completed}
+            </div>
+            <div className="text-sm text-gray-600">Completed</div>
+          </div>
+        </div>
+
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
             {error}

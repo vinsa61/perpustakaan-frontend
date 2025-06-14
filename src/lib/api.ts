@@ -117,7 +117,7 @@ class ApiService {
   async getBookById(id: string): Promise<ApiResponse<any>> {
     const response = await api.get(`/books/${id}`);
     return response.data;
-  }  // Admin APIs
+  } // Admin APIs
   async getRequests(params?: {
     status?: string;
     type?: string;
@@ -127,12 +127,16 @@ class ApiService {
     const response = await api.get("/admin/requests", { params });
     return response.data;
   }
-
   async updateRequestStatus(
     id: string,
     status: "approved" | "rejected"
   ): Promise<ApiResponse<any>> {
     const response = await api.patch(`/admin/requests/${id}`, { status });
+    return response.data;
+  }
+
+  async getAdminStatistics(): Promise<any> {
+    const response = await api.get("/admin/statistics");
     return response.data;
   }
   // Bookshelf API
@@ -153,10 +157,15 @@ class ApiService {
     const response = await api.get(`/bookshelf/${userId}`, { params });
     return response.data;
   }
-
   // Get bookshelf summary
   async getBookshelfSummary(userId: string): Promise<ApiResponse<any>> {
     const response = await api.get(`/bookshelf/${userId}/summary`);
+    return response.data;
+  }
+
+  // Get bookshelf statistics
+  async getBookshelfStatistics(userId: string): Promise<any> {
+    const response = await api.get(`/bookshelf/${userId}/statistics`);
     return response.data;
   }
 
