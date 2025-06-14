@@ -6,6 +6,7 @@ import { apiService } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 interface BookDetailsPageProps {
   params: {
@@ -42,7 +43,6 @@ export default function BookDetailsPage({ params }: BookDetailsPageProps) {
       setLoading(false);
     }
   };
-
   const handleBorrowRequest = async () => {
     if (!user) {
       router.push("/login");
@@ -54,15 +54,19 @@ export default function BookDetailsPage({ params }: BookDetailsPageProps) {
     try {
       setBorrowing(true);
       const response = await apiService.createBorrowRequest([book.id]);
-
       if (response.status) {
-        alert("Borrow request submitted successfully!");
+        toast.success(
+          "Borrow request submitted successfully! Your request is now pending admin approval."
+        );
         fetchBookDetails(); // Refresh book details
       } else {
-        alert(response.message);
+        toast.error(response.message || "Failed to submit borrow request");
       }
     } catch (error: any) {
-      alert("Failed to submit borrow request");
+      console.error("Borrow request error:", error);
+      const errorMessage =
+        error.response?.data?.message || "Failed to submit borrow request";
+      toast.error(errorMessage);
     } finally {
       setBorrowing(false);
     }

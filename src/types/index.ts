@@ -117,6 +117,7 @@ export interface AdminRequest {
     | "waiting for approval"
     | "borrowed"
     | "returned"
+    | "waiting for return approval"
     | "completed";
   days_overdue: number;
   return_date?: string;
@@ -141,11 +142,12 @@ export interface BookshelfBook {
   borrow_info: {
     tanggal_pinjam: string;
     tenggat_pengembalian: string;
-    peminjaman_status: "pending" | "dipinjam" | "selesai";
+    peminjaman_status: "pending" | "dipinjam" | "dikembalikan" | "selesai";
     current_status:
       | "waiting for approval"
       | "borrowed"
       | "returned"
+      | "waiting for return approval"
       | "completed";
     status_detail:
       | "waiting for approval"

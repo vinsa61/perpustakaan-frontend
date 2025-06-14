@@ -7,6 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 interface BookCardProps {
   book: Buku; // Changed from Book to Buku
@@ -61,15 +62,16 @@ export default function BookCard({ book, onBorrowSuccess }: BookCardProps) {
     try {
       setBorrowing(true);
       const response = await apiService.createBorrowRequest([book.id]);
-
       if (response.status) {
-        alert("Borrow request submitted successfully!");
+        toast.success(
+          "Borrow request submitted successfully! Your request is now pending admin approval."
+        );
         onBorrowSuccess?.();
       } else {
-        alert(response.message || "Failed to submit borrow request");
+        toast.error(response.message || "Failed to submit borrow request");
       }
     } catch (error: any) {
-      alert("Failed to submit borrow request");
+      toast.error("Failed to submit borrow request");
     } finally {
       setBorrowing(false);
     }

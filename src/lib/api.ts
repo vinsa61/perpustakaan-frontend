@@ -10,13 +10,13 @@ import {
 } from "@/types/api";
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 const context = <GetServerSidePropsContext>{};
 
 export const baseURL =
   process.env.NEXT_PUBLIC_RUN_MODE === "development"
-    ? process.env.NEXT_PUBLIC_API_URL_DEV
-    : process.env.NEXT_PUBLIC_API_URL_PROD;
+    ? process.env.NEXT_PUBLIC_API_URL_DEV || "http://localhost:5000/api"
+    : process.env.NEXT_PUBLIC_API_URL_PROD || "http://localhost:5000/api";
 
 export const api = axios.create({
   baseURL,
@@ -186,6 +186,38 @@ class ApiService {
 
   async returnBook(peminjaman_id: number): Promise<ApiResponse<any>> {
     const response = await api.post(`/borrow/return/${peminjaman_id}`);
+    return response.data;
+  }
+
+  // Admin APIs for managing borrow requests
+  async approveBorrowRequest(peminjamanId: number): Promise<ApiResponse<any>> {
+    const response = await api.post(`/admin/requests/${peminjamanId}/approve`);
+    return response.data;
+  }
+
+  async rejectBorrowRequest(
+    peminjamanId: number,
+    reason?: string
+  ): Promise<ApiResponse<any>> {
+    const response = await api.post(`/admin/requests/${peminjamanId}/reject`, {
+      reason,
+    });
+    return response.data;
+  }
+
+  // Admin APIs for managing return requests
+  async approveReturnRequest(peminjamanId: number): Promise<ApiResponse<any>> {
+    const response = await api.post(`/admin/returns/${peminjamanId}/approve`);
+    return response.data;
+  }
+
+  async rejectReturnRequest(
+    peminjamanId: number,
+    reason?: string
+  ): Promise<ApiResponse<any>> {
+    const response = await api.post(`/admin/returns/${peminjamanId}/reject`, {
+      reason,
+    });
     return response.data;
   }
 }

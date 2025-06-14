@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { apiService } from "@/lib/api";
 import { BookshelfBook, BookshelfSummary, Anggota } from "@/types";
 import { formatDate } from "@/utils/dateUtils";
+import toast from "react-hot-toast";
 
 interface BookshelfData {
   user: Anggota | null;
@@ -84,9 +85,11 @@ export default function BookShelfPage() {
 
   const fetchStatistics = async () => {
     if (!user?.id) return;
-    
+
     try {
-      const response = await apiService.getBookshelfStatistics(user.id.toString());
+      const response = await apiService.getBookshelfStatistics(
+        user.id.toString()
+      );
       if (response.success) {
         setStatistics(response.data);
       }
@@ -111,6 +114,8 @@ export default function BookShelfPage() {
         return "bg-blue-100 text-blue-800";
       case "returned":
         return "bg-orange-100 text-orange-800";
+      case "waiting for return approval":
+        return "bg-purple-100 text-purple-800";
       case "completed":
         return "bg-green-100 text-green-800";
       default:
@@ -126,10 +131,28 @@ export default function BookShelfPage() {
         return "Borrowed";
       case "returned":
         return "Returned";
+      case "waiting for return approval":
+        return "Waiting for Return Approval";
       case "completed":
         return "Completed";
       default:
         return String(status).charAt(0).toUpperCase() + String(status).slice(1);
+    }
+  };
+  const handleReturnBook = async (peminjamanId: number) => {
+    try {
+      const response = await apiService.returnBook(peminjamanId);
+
+      if (response.status) {
+        toast.success(
+          "Return request submitted successfully! Your return is now waiting for admin approval."
+        );
+        fetchBookshelf(); // Refresh the bookshelf data
+      } else {
+        toast.error(response.message || "Failed to submit return request");
+      }
+    } catch (error: any) {
+      toast.error("Failed to submit return request");
     }
   };
 
@@ -163,7 +186,8 @@ export default function BookShelfPage() {
           <p className="text-gray-600 mt-2">
             Manage your borrowed books and view your reading history
           </p>
-        </div>        {/* Statistics Cards */}
+        </div>{" "}
+        {/* Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
           <div className="bg-white rounded-lg shadow p-6">
             <div className="text-2xl font-bold text-blue-600">
@@ -196,7 +220,6 @@ export default function BookShelfPage() {
             <div className="text-sm text-gray-600">Completed</div>
           </div>
         </div>
-
         {/* Filters */}
         <div className="bg-white rounded-lg shadow mb-6 p-6">
           <h3 className="text-lg font-medium text-gray-900 mb-4">
@@ -225,14 +248,12 @@ export default function BookShelfPage() {
             ))}
           </div>
         </div>
-
         {/* Loading State */}
         {loading && (
           <div className="flex justify-center items-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
           </div>
         )}
-
         {/* Error State */}
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
@@ -244,7 +265,6 @@ export default function BookShelfPage() {
             </div>
           </div>
         )}
-
         {/* Books List */}
         {!loading && bookshelfData && (
           <div className="space-y-6">
@@ -322,10 +342,8 @@ export default function BookShelfPage() {
                             )}
                           </div>
                         </div>
-                      </div>
-
-                      <div className="ml-6 flex flex-col items-end">
-                        {" "}
+                      </div>{" "}
+                      <div className="ml-6 flex flex-col items-end space-y-2">
                         <span
                           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusBadgeClass(
                             book.borrow_info.current_status
@@ -333,15 +351,36 @@ export default function BookShelfPage() {
                         >
                           {getStatusDisplay(book)}
                         </span>
+
+                        {/* Return button for borrowed books */}
+                        {book.borrow_info.current_status === "borrowed" && (
+                          <button
+                            onClick={() => handleReturnBook(book.peminjaman_id)}
+                            className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                          >
+                            Return Book
+                          </button>
+                        )}
                       </div>
                     </div>
+
+                    {/* Return Button - Only for borrowed books */}
+                    {book.borrow_info.current_status === "borrowed" && (
+                      <div className="mt-4">
+                        <button
+                          onClick={() => handleReturnBook(book.peminjaman_id)}
+                          className="w-full px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-md shadow hover:bg-red-700 transition-colors"
+                        >
+                          Return Book
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))
             )}
           </div>
         )}
-
         {/* Pagination */}
         {!loading && pagination.totalPages > 1 && (
           <div className="mt-8 flex items-center justify-between">

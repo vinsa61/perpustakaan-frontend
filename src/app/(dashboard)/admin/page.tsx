@@ -6,6 +6,7 @@ import { apiService } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { formatDate } from "@/utils/dateUtils";
+import toast from "react-hot-toast";
 
 export default function AdminPage() {
   const [requests, setRequests] = useState<AdminRequest[]>([]);
@@ -14,12 +15,18 @@ export default function AdminPage() {
     waiting_approval: 0,
     borrowed: 0,
     returned: 0,
+    waiting_return_approval: 0,
     completed: 0,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [filter, setFilter] = useState<
-    "all" | "waiting for approval" | "borrowed" | "returned" | "completed"
+    | "all"
+    | "waiting for approval"
+    | "borrowed"
+    | "returned"
+    | "waiting for return approval"
+    | "completed"
   >("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -37,7 +44,8 @@ export default function AdminPage() {
     if (!isAdmin) {
       router.push("/");
       return;
-    }    fetchRequests();
+    }
+    fetchRequests();
     fetchStatistics();
   }, [filter, currentPage, user]);
 
@@ -63,7 +71,8 @@ export default function AdminPage() {
       }
       const response: AdminRequestsResponse = await apiService.getRequests(
         params
-      );      if (response.success) {
+      );
+      if (response.success) {
         setRequests(response.data || []);
         setTotalPages(response.pagination?.totalPages || 1);
         setError("");
@@ -77,26 +86,6 @@ export default function AdminPage() {
       setLoading(false);
     }
   };
-
-  const handleUpdateStatus = async (
-    requestId: number,
-    status: "approved" | "rejected"
-  ) => {
-    try {
-      const response = await apiService.updateRequestStatus(
-        requestId.toString(),
-        status
-      );
-
-      if (response.status) {
-        fetchRequests(); // Refresh the list
-      } else {
-        alert(response.message);
-      }
-    } catch (error: any) {
-      alert("Failed to update request status");
-    }
-  };
   const getStatusColor = (status: string) => {
     switch (status) {
       case "waiting for approval":
@@ -105,6 +94,8 @@ export default function AdminPage() {
         return "bg-blue-100 text-blue-800";
       case "returned":
         return "bg-orange-100 text-orange-800";
+      case "waiting for return approval":
+        return "bg-purple-100 text-purple-800";
       case "completed":
         return "bg-green-100 text-green-800";
       default:
@@ -119,10 +110,54 @@ export default function AdminPage() {
         return "Borrowed";
       case "returned":
         return "Returned";
+      case "waiting for return approval":
+        return "Waiting for Return Approval";
       case "completed":
         return "Completed";
       default:
         return status;
+    }
+  };
+  // Handle borrow request approval/rejection
+  const handleBorrowAction = async (
+    requestId: number,
+    action: "approve" | "reject"
+  ) => {
+    try {
+      const response =
+        action === "approve"
+          ? await apiService.approveBorrowRequest(requestId)
+          : await apiService.rejectBorrowRequest(requestId);
+      if (response.status) {
+        fetchRequests(); // Refresh the list
+        fetchStatistics(); // Refresh statistics
+        toast.success(`Borrow request ${action}d successfully!`);
+      } else {
+        toast.error(response.message);
+      }
+    } catch (error: any) {
+      toast.error(`Failed to ${action} borrow request`);
+    }
+  };
+  // Handle return request approval/rejection
+  const handleReturnAction = async (
+    requestId: number,
+    action: "approve" | "reject"
+  ) => {
+    try {
+      const response =
+        action === "approve"
+          ? await apiService.approveReturnRequest(requestId)
+          : await apiService.rejectReturnRequest(requestId);
+      if (response.status) {
+        fetchRequests(); // Refresh the list
+        fetchStatistics(); // Refresh statistics
+        toast.success(`Return request ${action}d successfully!`);
+      } else {
+        toast.error(response.message);
+      }
+    } catch (error: any) {
+      toast.error(`Failed to ${action} return request`);
     }
   };
 
@@ -148,10 +183,10 @@ export default function AdminPage() {
           </h1>
           <p className="text-gray-600">
             Manage borrow requests and library operations
-          </p>        </div>
-
+          </p>{" "}
+        </div>{" "}
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
           <div className="bg-white rounded-lg shadow p-6">
             <div className="text-2xl font-bold text-blue-600">
               {statistics.total_requests}
@@ -178,12 +213,17 @@ export default function AdminPage() {
           </div>
           <div className="bg-white rounded-lg shadow p-6">
             <div className="text-2xl font-bold text-purple-600">
+              {statistics.waiting_return_approval}
+            </div>
+            <div className="text-sm text-gray-600">Waiting Return Approval</div>
+          </div>
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="text-2xl font-bold text-indigo-600">
               {statistics.completed}
             </div>
             <div className="text-sm text-gray-600">Completed</div>
           </div>
         </div>
-
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
             {error}
@@ -198,6 +238,10 @@ export default function AdminPage() {
               { key: "waiting for approval", label: "Waiting for Approval" },
               { key: "borrowed", label: "Borrowed" },
               { key: "returned", label: "Returned" },
+              {
+                key: "waiting for return approval",
+                label: "Waiting Return Approval",
+              },
               { key: "completed", label: "Completed" },
             ].map((filterOption) => (
               <button
@@ -273,7 +317,66 @@ export default function AdminPage() {
                         )}`}
                       >
                         {getStatusText(request.current_status)}
-                      </span>
+                      </span>{" "}
+                      {/* Approve/Reject buttons for pending borrow requests */}
+                      {request.current_status === "waiting for approval" && (
+                        <div className="flex gap-2 mt-2">
+                          <button
+                            onClick={() =>
+                              handleBorrowAction(
+                                request.peminjaman_id,
+                                "approve"
+                              )
+                            }
+                            className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition-colors"
+                            title="Approve Borrow Request"
+                          >
+                            Approve
+                          </button>
+                          <button
+                            onClick={() =>
+                              handleBorrowAction(
+                                request.peminjaman_id,
+                                "reject"
+                              )
+                            }
+                            className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition-colors"
+                            title="Reject Borrow Request"
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      )}
+                      {/* Approve/Reject buttons for pending return requests */}
+                      {request.current_status ===
+                        "waiting for return approval" && (
+                        <div className="flex gap-2 mt-2">
+                          <button
+                            onClick={() =>
+                              handleReturnAction(
+                                request.peminjaman_id,
+                                "approve"
+                              )
+                            }
+                            className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors"
+                            title="Approve Return Request"
+                          >
+                            Approve Return
+                          </button>
+                          <button
+                            onClick={() =>
+                              handleReturnAction(
+                                request.peminjaman_id,
+                                "reject"
+                              )
+                            }
+                            className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition-colors"
+                            title="Reject Return Request"
+                          >
+                            Reject Return
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
 
