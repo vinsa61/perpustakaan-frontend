@@ -50,10 +50,10 @@ export default function BookShelfPage() {
         params.status = status;
       }
 
-      const response = await apiService.getBookshelf(
+      const response = (await apiService.getBookshelf(
         user.id.toString(),
         params
-      ) as unknown as BookshelfResponse;
+      )) as unknown as BookshelfResponse;
 
       if (response.success) {
         setBookshelfData(response.data);
@@ -83,31 +83,34 @@ export default function BookShelfPage() {
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
-
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
+      case "waiting for approval":
+        return "bg-yellow-100 text-yellow-800";
       case "borrowed":
-      case "active":
         return "bg-blue-100 text-blue-800";
       case "returned":
-        return "bg-green-100 text-green-800";
+        return "bg-orange-100 text-orange-800";
       case "completed":
-        return "bg-gray-100 text-gray-800";
-      case "overdue":
-        return "bg-red-100 text-red-800";
+        return "bg-green-100 text-green-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
   };
-
   const getStatusDisplay = (book: BookshelfBook) => {
-    if (book.borrow_info.status_detail === "overdue") {
-      return `Overdue (${book.borrow_info.days_overdue} days)`;
+    const status = book.borrow_info.current_status;
+    switch (status) {
+      case "waiting for approval":
+        return "Waiting for Approval";
+      case "borrowed":
+        return "Borrowed";
+      case "returned":
+        return "Returned";
+      case "completed":
+        return "Completed";
+      default:
+        return String(status).charAt(0).toUpperCase() + String(status).slice(1);
     }
-    return (
-      book.borrow_info.current_status.charAt(0).toUpperCase() +
-      book.borrow_info.current_status.slice(1)
-    );
   };
 
   if (authLoading) {
@@ -155,7 +158,7 @@ export default function BookShelfPage() {
               <div className="text-2xl font-bold text-green-600">
                 {bookshelfData.summary.active_borrowed}
               </div>
-              <div className="text-sm text-gray-600">Currently Borrowed</div>
+              <div className="text-sm text-gray-600">Borrowed</div>
             </div>
             <div className="bg-white rounded-lg shadow p-6">
               <div className="text-2xl font-bold text-purple-600">
@@ -168,12 +171,12 @@ export default function BookShelfPage() {
                 {bookshelfData.summary.completed}
               </div>
               <div className="text-sm text-gray-600">Completed</div>
-            </div>
+            </div>{" "}
             <div className="bg-white rounded-lg shadow p-6">
-              <div className="text-2xl font-bold text-red-600">
-                {bookshelfData.summary.overdue}
+              <div className="text-2xl font-bold text-yellow-600">
+                {bookshelfData.summary.waiting_approval || 0}
               </div>
-              <div className="text-sm text-gray-600">Overdue</div>
+              <div className="text-sm text-gray-600">Waiting for Approval</div>
             </div>
           </div>
         )}
@@ -184,12 +187,13 @@ export default function BookShelfPage() {
             Filter Books
           </h3>
           <div className="flex flex-wrap gap-2">
+            {" "}
             {[
               { key: "all", label: "All Books" },
-              { key: "borrowed", label: "Currently Borrowed" },
+              { key: "waiting for approval", label: "Waiting for Approval" },
+              { key: "borrowed", label: "Borrowed" },
               { key: "returned", label: "Returned" },
               { key: "completed", label: "Completed" },
-              { key: "overdue", label: "Overdue" },
             ].map((filter) => (
               <button
                 key={filter.key}
@@ -255,9 +259,12 @@ export default function BookShelfPage() {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
                           <div>
+                            {" "}
                             <p>
                               <strong>Authors:</strong>{" "}
-                              {book.book_authors.join(", ")}
+                              {Array.isArray(book.book_authors)
+                                ? book.book_authors.join(", ")
+                                : book.book_authors}
                             </p>
                             <p>
                               <strong>Category:</strong> {book.kategori}
@@ -302,6 +309,7 @@ export default function BookShelfPage() {
                       </div>
 
                       <div className="ml-6 flex flex-col items-end">
+                        {" "}
                         <span
                           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusBadgeClass(
                             book.borrow_info.current_status
@@ -309,12 +317,6 @@ export default function BookShelfPage() {
                         >
                           {getStatusDisplay(book)}
                         </span>
-
-                        {book.borrow_info.status_detail === "overdue" && (
-                          <div className="mt-2 text-red-600 text-sm font-medium">
-                            {book.borrow_info.days_overdue} day(s) overdue
-                          </div>
-                        )}
                       </div>
                     </div>
                   </div>

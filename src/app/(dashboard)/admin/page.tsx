@@ -1,19 +1,19 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { BorrowRequest } from "@/types";
+import { AdminRequest, AdminRequestsResponse } from "@/types";
 import { apiService } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+import { formatDate } from "@/utils/dateUtils";
 
 export default function AdminPage() {
-  const [requests, setRequests] = useState<BorrowRequest[]>([]);
+  const [requests, setRequests] = useState<AdminRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [filter, setFilter] = useState<
-    "all" | "pending" | "approved" | "rejected"
-  >("pending");
+    "all" | "waiting for approval" | "borrowed" | "returned" | "completed"
+  >("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const { user } = useAuth();
@@ -34,24 +34,30 @@ export default function AdminPage() {
 
     fetchRequests();
   }, [filter, currentPage, user]);
-
   const fetchRequests = async () => {
     try {
       setLoading(true);
-      const response = await apiService.getRequests({
-        status: filter === "all" ? undefined : filter,
+      const params: any = {
         page: currentPage,
         limit: 10,
-      });
+      };
+      if (filter !== "all") {
+        params.type = filter;
+      }
+      const response: AdminRequestsResponse = await apiService.getRequests(
+        params
+      );
 
-      if (response.status) {
-        setRequests(response.data?.data || []);
+      if (response.success) {
+        setRequests(response.data || []);
         setTotalPages(response.pagination?.totalPages || 1);
+        setError("");
       } else {
-        setError(response.message);
+        setError(response.message || "Failed to fetch requests");
       }
     } catch (error: any) {
       setError("Failed to fetch requests");
+      console.error("Fetch requests error:", error);
     } finally {
       setLoading(false);
     }
@@ -76,36 +82,30 @@ export default function AdminPage() {
       alert("Failed to update request status");
     }
   };
-
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "pending":
+      case "waiting for approval":
         return "bg-yellow-100 text-yellow-800";
-      case "approved":
-        return "bg-green-100 text-green-800";
-      case "rejected":
-        return "bg-red-100 text-red-800";
-      case "dipinjam":
+      case "borrowed":
         return "bg-blue-100 text-blue-800";
-      case "selesai":
-        return "bg-gray-100 text-gray-800";
+      case "returned":
+        return "bg-orange-100 text-orange-800";
+      case "completed":
+        return "bg-green-100 text-green-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
   };
-
   const getStatusText = (status: string) => {
     switch (status) {
-      case "pending":
-        return "Pending";
-      case "approved":
-        return "Approved";
-      case "rejected":
-        return "Rejected";
-      case "dipinjam":
+      case "waiting for approval":
+        return "Waiting for Approval";
+      case "borrowed":
         return "Borrowed";
-      case "selesai":
+      case "returned":
         return "Returned";
+      case "completed":
+        return "Completed";
       default:
         return status;
     }
@@ -134,37 +134,45 @@ export default function AdminPage() {
           <p className="text-gray-600">
             Manage borrow requests and library operations
           </p>
-        </div>
-
+        </div>{" "}
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
             {error}
           </div>
         )}
-
         {/* Filter Options */}
         <div className="mb-8">
           <div className="flex flex-wrap gap-2">
-            {["all", "pending", "approved", "rejected"].map((status) => (
+            {" "}
+            {[
+              { key: "all", label: "All Requests" },
+              { key: "waiting for approval", label: "Waiting for Approval" },
+              { key: "borrowed", label: "Borrowed" },
+              { key: "returned", label: "Returned" },
+              { key: "completed", label: "Completed" },
+            ].map((filterOption) => (
               <button
-                key={status}
-                onClick={() => setFilter(status as any)}
+                key={filterOption.key}
+                onClick={() => setFilter(filterOption.key as any)}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                  filter === status
+                  filter === filterOption.key
                     ? "text-white"
                     : "bg-white text-gray-700 hover:bg-gray-50"
                 }`}
                 style={{
-                  backgroundColor: filter === status ? "#879D82" : undefined,
-                  border: filter !== status ? "1px solid #d1d5db" : undefined,
+                  backgroundColor:
+                    filter === filterOption.key ? "#879D82" : undefined,
+                  border:
+                    filter !== filterOption.key
+                      ? "1px solid #d1d5db"
+                      : undefined,
                 }}
               >
-                {status.charAt(0).toUpperCase() + status.slice(1)} Requests
+                {filterOption.label}
               </button>
             ))}
           </div>
         </div>
-
         {/* Requests List */}
         {loading ? (
           <div className="space-y-4">
@@ -194,146 +202,130 @@ export default function AdminPage() {
           <div className="space-y-4">
             {requests.map((request) => (
               <div
-                key={request.id}
+                key={request.peminjaman_id}
                 className="bg-white rounded-lg shadow-sm p-6"
               >
-                <div className="flex flex-col lg:flex-row gap-6">
-                  <div className="flex-shrink-0">
-                    <div className="relative w-16 h-20">
-                      <Image
-                        src={
-                          request.cover_image || "/images/placeholder-book.jpg"
-                        }
-                        alt={request.book_title}
-                        fill
-                        className="object-contain rounded"
-                      />
+                <div className="flex flex-col gap-6">
+                  {/* Header with Status */}
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">
+                        Borrowing Request #{request.peminjaman_id}
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        {request.total_books} book(s) •{" "}
+                        {formatDate(request.created_at)}
+                      </p>
+                    </div>{" "}
+                    <div className="flex flex-col items-end gap-2">
+                      <span
+                        className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
+                          request.current_status
+                        )}`}
+                      >
+                        {getStatusText(request.current_status)}
+                      </span>
                     </div>
                   </div>
 
-                  <div className="flex-grow">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                      {/* Book Information */}
-                      <div>
-                        <h3 className="text-lg font-semibold mb-2">
-                          {request.book_title}
-                        </h3>
-                        <p className="text-gray-600 text-sm mb-1">
-                          by {request.book_author}
-                        </p>
-                        <p className="text-gray-500 text-xs mb-2">
-                          ISBN: {request.isbn}
-                        </p>
-                        <p className="text-gray-500 text-xs">
-                          {request.publisher}
-                        </p>
-                      </div>
-
-                      {/* User Information */}
-                      <div>
-                        <h4 className="font-semibold text-gray-800 mb-2">
-                          Requestor Details
-                        </h4>
-                        <div className="space-y-1 text-sm">
-                          <p>
-                            <span className="font-medium">Name:</span>{" "}
-                            {request.user_name}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Book Information */}
+                    <div>
+                      <h4 className="font-semibold text-gray-800 mb-3">
+                        Books
+                      </h4>
+                      <div className="space-y-2">
+                        <div>
+                          <span className="font-medium text-gray-700">
+                            Titles:
+                          </span>
+                          <p className="text-gray-600 text-sm">
+                            {request.book_titles}
                           </p>
-                          <p>
-                            <span className="font-medium">Username:</span>{" "}
-                            {request.username}
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">
+                            Authors:
+                          </span>
+                          <p className="text-gray-600 text-sm">
+                            {request.book_authors}
                           </p>
-                          <p>
-                            <span className="font-medium">Email:</span>{" "}
-                            {request.email}
-                          </p>
-                          <p>
-                            <span className="font-medium">Role:</span>{" "}
-                            {request.academic_role}
-                          </p>
-                          <p>
-                            <span className="font-medium">ID:</span>{" "}
-                            {request.no_induk}
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">
+                            Publishers:
+                          </span>
+                          <p className="text-gray-600 text-sm">
+                            {request.publishers}
                           </p>
                         </div>
                       </div>
                     </div>
 
-                    {/* Request Details */}
-                    <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                      <div>
-                        <span className="font-medium text-gray-700">
-                          Request Date:
-                        </span>
-                        <p className="text-gray-600">
-                          {new Date(request.created_at).toLocaleDateString()}
+                    {/* User Information */}
+                    <div>
+                      <h4 className="font-semibold text-gray-800 mb-3">
+                        Borrower Details
+                      </h4>
+                      <div className="space-y-1 text-sm">
+                        <p>
+                          <span className="font-medium">Name:</span>{" "}
+                          {request.user_name}
                         </p>
-                      </div>
-                      <div>
-                        <span className="font-medium text-gray-700">
-                          Borrow Date:
-                        </span>
-                        <p className="text-gray-600">
-                          {new Date(
-                            request.tanggal_pinjam
-                          ).toLocaleDateString()}
+                        <p>
+                          <span className="font-medium">Username:</span>{" "}
+                          {request.username}
                         </p>
-                      </div>
-                      <div>
-                        <span className="font-medium text-gray-700">
-                          Due Date:
-                        </span>
-                        <p className="text-gray-600">
-                          {new Date(
-                            request.tenggat_pengembalian
-                          ).toLocaleDateString()}
+                        <p>
+                          <span className="font-medium">Email:</span>{" "}
+                          {request.email}
+                        </p>
+                        <p>
+                          <span className="font-medium">Role:</span>{" "}
+                          {request.academic_role}
+                        </p>
+                        <p>
+                          <span className="font-medium">ID:</span>{" "}
+                          {request.no_induk}
                         </p>
                       </div>
                     </div>
+                  </div>
 
-                    {/* Status and Actions */}
-                    <div className="mt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                      <div className="flex items-center space-x-3">
-                        <span
-                          className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
-                            request.status
-                          )}`}
-                        >
-                          {getStatusText(request.status)}
-                        </span>
-                        <span className="text-xs text-gray-500">
-                          Type: {request.request_type}
-                        </span>
-                      </div>
-
-                      {request.status === "pending" && (
-                        <div className="flex space-x-2">
-                          <button
-                            onClick={() =>
-                              handleUpdateStatus(request.id, "approved")
-                            }
-                            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
-                          >
-                            Approve
-                          </button>
-                          <button
-                            onClick={() =>
-                              handleUpdateStatus(request.id, "rejected")
-                            }
-                            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
-                          >
-                            Reject
-                          </button>
-                        </div>
-                      )}
+                  {/* Request Details */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm border-t pt-4">
+                    <div>
+                      <span className="font-medium text-gray-700">
+                        Borrow Date:
+                      </span>
+                      <p className="text-gray-600">
+                        {formatDate(request.tanggal_pinjam)}
+                      </p>
                     </div>
+                    <div>
+                      <span className="font-medium text-gray-700">
+                        Due Date:
+                      </span>
+                      <p className="text-gray-600">
+                        {formatDate(request.tenggat_pengembalian)}
+                      </p>
+                    </div>
+                    {request.return_date && (
+                      <div>
+                        <span className="font-medium text-gray-700">
+                          Return Date:
+                        </span>
+                        <p className="text-gray-600">
+                          {formatDate(request.return_date)}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
             ))}
           </div>
         )}
-
         {/* Pagination */}
         {totalPages > 1 && (
           <div className="flex justify-center mt-8">

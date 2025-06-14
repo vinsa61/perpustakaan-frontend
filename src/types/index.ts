@@ -96,12 +96,39 @@ export interface BorrowRequest {
   no_induk: string;
 }
 
+// New interface for admin requests (matches the new API structure)
+export interface AdminRequest {
+  peminjaman_id: number;
+  tanggal_pinjam: string;
+  tenggat_pengembalian: string;
+  peminjaman_status: "dipinjam" | "selesai";
+  created_at: string;
+  user_id: number;
+  user_name: string;
+  username: string;
+  email: string;
+  academic_role: "mahasiswa" | "dosen" | "tendik";
+  no_induk: string;
+  total_books: number;
+  book_titles: string;
+  book_authors: string;
+  publishers: string;
+  current_status:
+    | "waiting for approval"
+    | "borrowed"
+    | "returned"
+    | "completed";
+  days_overdue: number;
+  return_date?: string;
+  total_fine: number;
+}
+
 export interface BookshelfBook {
   peminjaman_id: number;
   detail_id: number;
   book_id: number;
   book_title: string;
-  book_authors: string[];
+  book_authors: string[] | string;
   kategori: string;
   tahun_terbit: number;
   stok: number;
@@ -114,10 +141,17 @@ export interface BookshelfBook {
   borrow_info: {
     tanggal_pinjam: string;
     tenggat_pengembalian: string;
-    peminjaman_status: "dipinjam" | "selesai";
-    current_status: "borrowed" | "returned" | "completed";
-    status_detail: "overdue" | "active" | "returned" | "completed";
-    days_overdue: number;
+    peminjaman_status: "pending" | "dipinjam" | "selesai";
+    current_status:
+      | "waiting for approval"
+      | "borrowed"
+      | "returned"
+      | "completed";
+    status_detail:
+      | "waiting for approval"
+      | "borrowed"
+      | "returned"
+      | "completed";
   };
   return_info: {
     tanggal_dikembalikan: string;
@@ -129,10 +163,10 @@ export interface BookshelfBook {
 
 export interface BookshelfSummary {
   total_requests: number;
+  waiting_approval: number;
   active_borrowed: number;
   returned: number;
   completed: number;
-  overdue: number;
 }
 
 export interface BookshelfData {
@@ -301,4 +335,17 @@ export interface PeminjamanProcedureResult {
 export interface PengembalianProcedureResult {
   total_denda: number;
   status_message: string;
+}
+
+// Admin requests API response interface
+export interface AdminRequestsResponse {
+  success: boolean;
+  message: string;
+  data: AdminRequest[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
 }

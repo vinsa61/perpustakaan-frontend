@@ -117,16 +117,14 @@ class ApiService {
   async getBookById(id: string): Promise<ApiResponse<any>> {
     const response = await api.get(`/books/${id}`);
     return response.data;
-  }
-
-  // Admin APIs
+  }  // Admin APIs
   async getRequests(params?: {
     status?: string;
     type?: string;
     page?: number;
     limit?: number;
-  }): Promise<PaginatedApiResponse<any[]>> {
-    const response = await api.get("/requests", { params });
+  }): Promise<any> {
+    const response = await api.get("/admin/requests", { params });
     return response.data;
   }
 
@@ -134,7 +132,7 @@ class ApiService {
     id: string,
     status: "approved" | "rejected"
   ): Promise<ApiResponse<any>> {
-    const response = await api.patch(`/requests/${id}`, { status });
+    const response = await api.patch(`/admin/requests/${id}`, { status });
     return response.data;
   }
   // Bookshelf API
