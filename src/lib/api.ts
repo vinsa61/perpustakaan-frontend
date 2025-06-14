@@ -129,9 +129,9 @@ class ApiService {
   }
   async updateRequestStatus(
     id: string,
-    status: "approved" | "rejected"
+    action: "approve" | "reject"
   ): Promise<ApiResponse<any>> {
-    const response = await api.patch(`/admin/requests/${id}`, { status });
+    const response = await api.patch(`/admin/requests/${id}`, { action });
     return response.data;
   }
 

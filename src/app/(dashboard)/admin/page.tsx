@@ -17,6 +17,7 @@ export default function AdminPage() {
     returned: 0,
     waiting_return_approval: 0,
     completed: 0,
+    rejected: 0,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -27,6 +28,7 @@ export default function AdminPage() {
     | "returned"
     | "waiting for return approval"
     | "completed"
+    | "rejected"
   >("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -98,6 +100,8 @@ export default function AdminPage() {
         return "bg-purple-100 text-purple-800";
       case "completed":
         return "bg-green-100 text-green-800";
+      case "rejected":
+        return "bg-red-100 text-red-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -114,24 +118,29 @@ export default function AdminPage() {
         return "Waiting for Return Approval";
       case "completed":
         return "Completed";
+      case "rejected":
+        return "Rejected";
       default:
         return status;
     }
-  };
-  // Handle borrow request approval/rejection
+  }; // Handle borrow request approval/rejection using PATCH endpoint
   const handleBorrowAction = async (
     requestId: number,
     action: "approve" | "reject"
   ) => {
     try {
-      const response =
-        action === "approve"
-          ? await apiService.approveBorrowRequest(requestId)
-          : await apiService.rejectBorrowRequest(requestId);
+      const response = await apiService.updateRequestStatus(
+        requestId.toString(),
+        action
+      );
       if (response.status) {
         fetchRequests(); // Refresh the list
         fetchStatistics(); // Refresh statistics
-        toast.success(`Borrow request ${action}d successfully!`);
+        if (action == "reject") {
+          toast.success(`Borrow request ${action}ed successfully!`);
+        } else {
+          toast.success(`Borrow request ${action}d successfully!`);
+        }
       } else {
         toast.error(response.message);
       }
@@ -186,7 +195,7 @@ export default function AdminPage() {
           </p>{" "}
         </div>{" "}
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4 mb-8">
           <div className="bg-white rounded-lg shadow p-6">
             <div className="text-2xl font-bold text-blue-600">
               {statistics.total_requests}
@@ -223,6 +232,12 @@ export default function AdminPage() {
             </div>
             <div className="text-sm text-gray-600">Completed</div>
           </div>
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="text-2xl font-bold text-red-600">
+              {statistics.rejected}
+            </div>
+            <div className="text-sm text-gray-600">Rejected</div>
+          </div>
         </div>
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
@@ -243,6 +258,7 @@ export default function AdminPage() {
                 label: "Waiting Return Approval",
               },
               { key: "completed", label: "Completed" },
+              { key: "rejected", label: "Rejected" },
             ].map((filterOption) => (
               <button
                 key={filterOption.key}

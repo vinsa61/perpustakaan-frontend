@@ -80,7 +80,13 @@ export interface BorrowRequest {
   user_id: number;
   book_id: number;
   request_type: string;
-  status: "pending" | "approved" | "rejected" | "dipinjam" | "selesai";
+  status:
+    | "pending"
+    | "approved"
+    | "rejected"
+    | "dipinjam"
+    | "selesai"
+    | "ditolak";
   created_at: string;
   tanggal_pinjam: string;
   tenggat_pengembalian: string;
@@ -118,7 +124,8 @@ export interface AdminRequest {
     | "borrowed"
     | "returned"
     | "waiting for return approval"
-    | "completed";
+    | "completed"
+    | "rejected";
   days_overdue: number;
   return_date?: string;
   total_fine: number;
@@ -142,18 +149,25 @@ export interface BookshelfBook {
   borrow_info: {
     tanggal_pinjam: string;
     tenggat_pengembalian: string;
-    peminjaman_status: "pending" | "dipinjam" | "dikembalikan" | "selesai";
+    peminjaman_status:
+      | "pending"
+      | "dipinjam"
+      | "dikembalikan"
+      | "selesai"
+      | "ditolak";
     current_status:
       | "waiting for approval"
       | "borrowed"
       | "returned"
       | "waiting for return approval"
-      | "completed";
+      | "completed"
+      | "rejected";
     status_detail:
       | "waiting for approval"
       | "borrowed"
       | "returned"
-      | "completed";
+      | "completed"
+      | "rejected";
   };
   return_info: {
     tanggal_dikembalikan: string;

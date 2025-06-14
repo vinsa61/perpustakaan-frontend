@@ -36,6 +36,7 @@ export default function BookShelfPage() {
     borrowed: 0,
     returned: 0,
     completed: 0,
+    rejected: 0,
   });
   const [pagination, setPagination] = useState({
     page: 1,
@@ -118,6 +119,8 @@ export default function BookShelfPage() {
         return "bg-purple-100 text-purple-800";
       case "completed":
         return "bg-green-100 text-green-800";
+      case "rejected":
+        return "bg-red-100 text-red-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -135,6 +138,8 @@ export default function BookShelfPage() {
         return "Waiting for Return Approval";
       case "completed":
         return "Completed";
+      case "rejected":
+        return "Rejected";
       default:
         return String(status).charAt(0).toUpperCase() + String(status).slice(1);
     }
@@ -188,7 +193,7 @@ export default function BookShelfPage() {
           </p>
         </div>{" "}
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
           <div className="bg-white rounded-lg shadow p-6">
             <div className="text-2xl font-bold text-blue-600">
               {statistics.total_requests}
@@ -219,6 +224,12 @@ export default function BookShelfPage() {
             </div>
             <div className="text-sm text-gray-600">Completed</div>
           </div>
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="text-2xl font-bold text-red-600">
+              {statistics.rejected}
+            </div>
+            <div className="text-sm text-gray-600">Rejected</div>
+          </div>
         </div>
         {/* Filters */}
         <div className="bg-white rounded-lg shadow mb-6 p-6">
@@ -233,6 +244,7 @@ export default function BookShelfPage() {
               { key: "borrowed", label: "Borrowed" },
               { key: "returned", label: "Returned" },
               { key: "completed", label: "Completed" },
+              { key: "rejected", label: "Rejected" },
             ].map((filter) => (
               <button
                 key={filter.key}
@@ -363,18 +375,6 @@ export default function BookShelfPage() {
                         )}
                       </div>
                     </div>
-
-                    {/* Return Button - Only for borrowed books */}
-                    {book.borrow_info.current_status === "borrowed" && (
-                      <div className="mt-4">
-                        <button
-                          onClick={() => handleReturnBook(book.peminjaman_id)}
-                          className="w-full px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-md shadow hover:bg-red-700 transition-colors"
-                        >
-                          Return Book
-                        </button>
-                      </div>
-                    )}
                   </div>
                 </div>
               ))
