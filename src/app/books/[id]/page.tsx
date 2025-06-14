@@ -208,23 +208,30 @@ export default function BookDetailsPage({ params }: BookDetailsPageProps) {
                   </p>
                 )}
               </div>
-
-              {/* Status and Stock */}
+              {/* Debug Info */}
+              {process.env.NODE_ENV === "development" && (
+                <div className="bg-yellow-50 border border-yellow-200 p-3 rounded-lg">
+                  <p className="text-sm text-yellow-800">
+                    Debug: stok={book.stok}, tersedia={String(book.tersedia)},
+                    type={typeof book.tersedia}
+                  </p>
+                </div>
+              )}
+              {/* Status and Stock */}{" "}
               <div className="flex items-center space-x-4">
                 <span
                   className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    book.tersedia
+                    book.stok > 0
                       ? "bg-green-100 text-green-800"
                       : "bg-red-100 text-red-800"
                   }`}
                 >
-                  {book.tersedia ? "Available" : "Unavailable"}
+                  {book.stok > 0 ? "Available" : "Unavailable"}
                 </span>
                 <span className="text-gray-600">
                   {book.stok} {book.stok === 1 ? "copy" : "copies"} available
                 </span>
               </div>
-
               {/* Synopsis */}
               {book.synopsis && (
                 <div>
@@ -239,7 +246,6 @@ export default function BookDetailsPage({ params }: BookDetailsPageProps) {
                   </p>
                 </div>
               )}
-
               {/* Author Details */}
               {Array.isArray(book.pengarang) && book.pengarang.length > 0 && (
                 <div>
@@ -266,7 +272,6 @@ export default function BookDetailsPage({ params }: BookDetailsPageProps) {
                   </div>
                 </div>
               )}
-
               {/* Publisher Details */}
               {book.penerbit && (
                 <div>
@@ -284,12 +289,11 @@ export default function BookDetailsPage({ params }: BookDetailsPageProps) {
                   </div>
                 </div>
               )}
-
               {/* Actions */}
               <div className="pt-6 space-y-3">
                 {user ? (
                   <>
-                    {book.tersedia ? (
+                    {book.stok > 0 ? (
                       <button
                         onClick={handleBorrowRequest}
                         disabled={borrowing}
@@ -384,15 +388,15 @@ export default function BookDetailsPage({ params }: BookDetailsPageProps) {
                 <span className="text-gray-600">{book.stok} copies</span>
               </div>
               <div className="flex justify-between">
-                <span className="font-medium text-gray-700">Status:</span>
+                <span className="font-medium text-gray-700">Status:</span>{" "}
                 <span
                   className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    book.tersedia
+                    book.stok > 0
                       ? "bg-green-100 text-green-800"
                       : "bg-red-100 text-red-800"
                   }`}
                 >
-                  {book.tersedia ? "Available" : "Unavailable"}
+                  {book.stok > 0 ? "Available" : "Unavailable"}
                 </span>
               </div>
             </div>

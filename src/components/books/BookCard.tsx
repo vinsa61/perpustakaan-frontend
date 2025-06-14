@@ -19,7 +19,7 @@ export default function BookCard({ book, onBorrowSuccess }: BookCardProps) {
   const { user } = useAuth();
   const router = useRouter();
 
-  const isAvailable = book.tersedia === true;
+  const isAvailable = book.stok > 0;
 
   // Format authors according to new schema
   const formatAuthors = (pengarang: Buku["pengarang"]) => {

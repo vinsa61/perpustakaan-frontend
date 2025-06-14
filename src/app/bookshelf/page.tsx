@@ -133,7 +133,7 @@ export default function BookShelfPage() {
       case "borrowed":
         return "Borrowed";
       case "returned":
-        return "Returned";
+        return "Return Rejected - Try Again";
       case "waiting for return approval":
         return "Waiting for Return Approval";
       case "completed":
@@ -146,7 +146,10 @@ export default function BookShelfPage() {
   };
   const handleReturnBook = async (peminjamanId: number) => {
     try {
+      console.log(`Attempting to return book for peminjaman ${peminjamanId}`);
       const response = await apiService.returnBook(peminjamanId);
+
+      console.log("Return response:", response);
 
       if (response.status) {
         toast.success(
@@ -154,10 +157,14 @@ export default function BookShelfPage() {
         );
         fetchBookshelf(); // Refresh the bookshelf data
       } else {
+        console.error("Return failed:", response.message);
         toast.error(response.message || "Failed to submit return request");
       }
     } catch (error: any) {
-      toast.error("Failed to submit return request");
+      console.error("Return error:", error);
+      toast.error(
+        error.response?.data?.message || "Failed to submit return request"
+      );
     }
   };
 
@@ -362,8 +369,7 @@ export default function BookShelfPage() {
                           )}`}
                         >
                           {getStatusDisplay(book)}
-                        </span>
-
+                        </span>{" "}
                         {/* Return button for borrowed books */}
                         {book.borrow_info.current_status === "borrowed" && (
                           <button
@@ -371,6 +377,15 @@ export default function BookShelfPage() {
                             className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
                           >
                             Return Book
+                          </button>
+                        )}
+                        {/* Return Again button for books that had return rejected */}
+                        {book.borrow_info.current_status === "returned" && (
+                          <button
+                            onClick={() => handleReturnBook(book.peminjaman_id)}
+                            className="px-3 py-1 text-sm bg-orange-600 text-white rounded hover:bg-orange-700 transition-colors"
+                          >
+                            Return Again
                           </button>
                         )}
                       </div>
