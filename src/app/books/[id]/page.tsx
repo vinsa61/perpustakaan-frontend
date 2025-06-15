@@ -209,15 +209,6 @@ export default function BookDetailsPage({ params }: BookDetailsPageProps) {
                   </p>
                 )}
               </div>
-              {/* Debug Info */}
-              {process.env.NODE_ENV === "development" && (
-                <div className="bg-yellow-50 border border-yellow-200 p-3 rounded-lg">
-                  <p className="text-sm text-yellow-800">
-                    Debug: stok={book.stok}, tersedia={String(book.tersedia)},
-                    type={typeof book.tersedia}
-                  </p>
-                </div>
-              )}
               {/* Status and Stock */}{" "}
               <div className="flex items-center space-x-4">
                 <span

@@ -82,7 +82,6 @@ export default function RegisterPage() {
         <h2 className="text-3xl font-bold" style={{ color: "#003880" }}>
           Create Account
         </h2>
-        <p className="mt-2 text-gray-600">Join our digital library community</p>
       </div>
 
       {error && (
