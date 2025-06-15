@@ -53,7 +53,7 @@ export default function LandingPage() {
             className="text-4xl sm:text-6xl font-bold mb-6"
             style={{ color: "#003880" }}
           >
-            Digital Library
+            MyITS Library
           </h1>
           <p className="text-xl sm:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto">
             Discover thousands of books, manage your reading journey, and
@@ -114,7 +114,7 @@ export default function LandingPage() {
             className="text-3xl font-bold text-center mb-12"
             style={{ color: "#003880" }}
           >
-            Why Choose Our Digital Library?
+            Why Choose MyITS Library?
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

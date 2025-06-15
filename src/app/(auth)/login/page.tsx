@@ -78,7 +78,7 @@ export default function LoginPage() {
               />
             </svg>
             <div className="ml-3">
-              <p className="text-sm text-red-800">{error}</p>
+              <p className="text-sm text-red-800">Username or Password do not match</p>
             </div>
           </div>
         </div>

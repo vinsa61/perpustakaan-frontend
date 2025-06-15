@@ -11,8 +11,8 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
   title: {
-    default: "Digital Library",
-    template: "%s | Digital Library",
+    default: "MyITS Library",
+    template: "%s | MyITS Library",
   },
   description: "Online library management system",
 };

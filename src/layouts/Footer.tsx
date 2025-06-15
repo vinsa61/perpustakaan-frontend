@@ -66,7 +66,7 @@ export default function Footer() {
         <div className="mt-8 pt-8 border-t border-gray-200">
           <div className="flex flex-col md:flex-row justify-center items-center">
             <p className="text-gray-500 text-sm">
-              © {currentYear} Digital Library. Final Project - Database
+              © {currentYear} MyITS Library. Final Project - Database
               Management.
             </p>
           </div>
