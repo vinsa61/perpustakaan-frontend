@@ -28,7 +28,7 @@ export default function AuthLayout({
         <div className="text-center">
           <div
             className="animate-spin rounded-full h-16 w-16 border-b-2 mx-auto mb-4"
-            style={{ borderColor: "#879D82" }}
+            style={{ borderColor: "#003880" }}
           ></div>
           <p className="text-gray-600">Loading...</p>
         </div>
@@ -52,7 +52,7 @@ export default function AuthLayout({
           <div className="flex justify-center items-center space-x-2">
             <div
               className="w-10 h-10 rounded-full flex items-center justify-center"
-              style={{ backgroundColor: "#879D82" }}
+              style={{ backgroundColor: "#003880" }}
             >
               <svg
                 className="w-6 h-6 text-white"
@@ -68,7 +68,7 @@ export default function AuthLayout({
                 />
               </svg>
             </div>
-            <span className="text-2xl font-bold" style={{ color: "#879D82" }}>
+            <span className="text-2xl font-bold" style={{ color: "#003880" }}>
               Digital Library
             </span>
           </div>

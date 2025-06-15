@@ -122,8 +122,8 @@ export default function BookCard({ book, onBorrowSuccess }: BookCardProps) {
             href={`/books/${book.id}`}
             className="text-sm px-3 py-1 rounded border transition-colors hover:bg-gray-50"
             style={{
-              borderColor: "#879D82",
-              color: "#879D82",
+              borderColor: "#003880",
+              color: "#003880",
             }}
           >
             View Details
@@ -140,7 +140,7 @@ export default function BookCard({ book, onBorrowSuccess }: BookCardProps) {
               }`}
               style={{
                 backgroundColor:
-                  isAvailable && !borrowing ? "#879D82" : undefined,
+                  isAvailable && !borrowing ? "#003880" : undefined,
               }}
             >
               {borrowing ? (
@@ -158,7 +158,7 @@ export default function BookCard({ book, onBorrowSuccess }: BookCardProps) {
             <Link
               href="/login"
               className="px-4 py-2 rounded-lg text-sm font-medium text-white hover:opacity-90 transition-opacity"
-              style={{ backgroundColor: "#879D82" }}
+              style={{ backgroundColor: "#003880" }}
             >
               Sign In to Borrow
             </Link>

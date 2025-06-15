@@ -47,10 +47,11 @@ export default function LandingPage() {
     <div className="min-h-screen" style={{ backgroundColor: "#FDFBF7" }}>
       {/* Hero Section */}
       <section className="relative py-20 px-4 sm:px-6 lg:px-8">
+        {" "}
         <div className="max-w-7xl mx-auto text-center">
           <h1
             className="text-4xl sm:text-6xl font-bold mb-6"
-            style={{ color: "#879D82" }}
+            style={{ color: "#003880" }}
           >
             Digital Library
           </h1>
@@ -65,7 +66,7 @@ export default function LandingPage() {
                 <Link
                   href="/books"
                   className="px-8 py-4 rounded-lg text-white font-semibold text-lg hover:opacity-90 transition-opacity"
-                  style={{ backgroundColor: "#879D82" }}
+                  style={{ backgroundColor: "#003880" }}
                 >
                   Browse Books
                 </Link>
@@ -73,8 +74,8 @@ export default function LandingPage() {
                   href="/bookshelf"
                   className="px-8 py-4 rounded-lg border-2 font-semibold text-lg hover:bg-gray-50 transition-colors"
                   style={{
-                    borderColor: "#879D82",
-                    color: "#879D82",
+                    borderColor: "#003880",
+                    color: "#003880",
                   }}
                 >
                   My Bookshelf
@@ -85,7 +86,7 @@ export default function LandingPage() {
                 <Link
                   href="/register"
                   className="px-8 py-4 rounded-lg text-white font-semibold text-lg hover:opacity-90 transition-opacity"
-                  style={{ backgroundColor: "#879D82" }}
+                  style={{ backgroundColor: "#003880" }}
                 >
                   Get Started
                 </Link>
@@ -93,8 +94,8 @@ export default function LandingPage() {
                   href="/login"
                   className="px-8 py-4 rounded-lg border-2 font-semibold text-lg hover:bg-gray-50 transition-colors"
                   style={{
-                    borderColor: "#879D82",
-                    color: "#879D82",
+                    borderColor: "#003880",
+                    color: "#003880",
                   }}
                 >
                   Sign In
@@ -107,10 +108,11 @@ export default function LandingPage() {
 
       {/* Features Section */}
       <section className="py-16 px-4 sm:px-6 lg:px-8">
+        {" "}
         <div className="max-w-7xl mx-auto">
           <h2
             className="text-3xl font-bold text-center mb-12"
-            style={{ color: "#879D82" }}
+            style={{ color: "#003880" }}
           >
             Why Choose Our Digital Library?
           </h2>
@@ -119,7 +121,7 @@ export default function LandingPage() {
             <div className="text-center p-6 bg-white rounded-lg shadow-sm">
               <div
                 className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center"
-                style={{ backgroundColor: "#879D82" }}
+                style={{ backgroundColor: "#003880" }}
               >
                 <svg
                   className="w-8 h-8 text-white"
@@ -168,9 +170,10 @@ export default function LandingPage() {
             </div>
 
             <div className="text-center p-6 bg-white rounded-lg shadow-sm">
+              {" "}
               <div
                 className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center"
-                style={{ backgroundColor: "#879D82" }}
+                style={{ backgroundColor: "#003880" }}
               >
                 <svg
                   className="w-8 h-8 text-white"
@@ -199,19 +202,19 @@ export default function LandingPage() {
       {/* Featured Books Section */}
       <section className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
+          {" "}
           <div className="flex justify-between items-center mb-12">
-            <h2 className="text-3xl font-bold" style={{ color: "#879D82" }}>
+            <h2 className="text-3xl font-bold" style={{ color: "#003880" }}>
               Featured Books
             </h2>
             <Link
               href="/books"
               className="text-lg font-medium hover:underline"
-              style={{ color: "#879D82" }}
+              style={{ color: "#003880" }}
             >
               View All Books →
             </Link>
           </div>
-
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {[...Array(6)].map((_, index) => (
@@ -245,8 +248,9 @@ export default function LandingPage() {
 
       {/* CTA Section */}
       <section className="py-16 px-4 sm:px-6 lg:px-8">
+        {" "}
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-4" style={{ color: "#879D82" }}>
+          <h2 className="text-3xl font-bold mb-4" style={{ color: "#003880" }}>
             Ready to Start Reading?
           </h2>
           <p className="text-xl text-gray-600 mb-8">
@@ -258,7 +262,7 @@ export default function LandingPage() {
             <Link
               href="/register"
               className="inline-block px-8 py-4 rounded-lg text-white font-semibold text-lg hover:opacity-90 transition-opacity"
-              style={{ backgroundColor: "#879D82" }}
+              style={{ backgroundColor: "#003880" }}
             >
               Sign Up Now
             </Link>

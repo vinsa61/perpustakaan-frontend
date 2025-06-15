@@ -79,7 +79,7 @@ export default function RegisterPage() {
   return (
     <div className="bg-white py-8 px-6 shadow-lg rounded-lg">
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold" style={{ color: "#879D82" }}>
+        <h2 className="text-3xl font-bold" style={{ color: "#003880" }}>
           Create Account
         </h2>
         <p className="mt-2 text-gray-600">Join our digital library community</p>
@@ -281,7 +281,7 @@ export default function RegisterPage() {
           type="submit"
           disabled={loading}
           className="w-full py-3 px-4 border border-transparent rounded-lg text-white font-medium hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-          style={{ backgroundColor: "#879D82" }}
+          style={{ backgroundColor: "#003880" }}
         >
           {loading ? (
             <div className="flex items-center justify-center">
@@ -299,7 +299,7 @@ export default function RegisterPage() {
             <Link
               href="/login"
               className="font-medium hover:underline"
-              style={{ color: "#879D82" }}
+              style={{ color: "#003880" }}
             >
               Sign in here
             </Link>

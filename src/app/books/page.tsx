@@ -63,7 +63,7 @@ function BooksContent() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-4" style={{ color: "#879D82" }}>
+          <h1 className="text-3xl font-bold mb-4" style={{ color: "#003880" }}>
             Browse Books
           </h1>
           <p className="text-gray-600">
@@ -87,7 +87,7 @@ function BooksContent() {
               <button
                 type="submit"
                 className="px-6 py-2 rounded-lg text-white font-medium hover:opacity-90 transition-opacity"
-                style={{ backgroundColor: "#879D82" }}
+                style={{ backgroundColor: "#003880" }}
               >
                 Search
               </button>
@@ -102,7 +102,7 @@ function BooksContent() {
                 checked={availableOnly}
                 onChange={(e) => setAvailableOnly(e.target.checked)}
                 className="h-4 w-4 rounded border-gray-300"
-                style={{ accentColor: "#879D82" }}
+                style={{ accentColor: "#003880" }}
               />
               <label
                 htmlFor="available-only"
@@ -201,7 +201,7 @@ export default function BooksPage() {
       <div className="min-h-screen py-8" style={{ backgroundColor: "#FDFBF7" }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 mx-auto mb-4" style={{ borderColor: "#879D82" }}></div>
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 mx-auto mb-4" style={{ borderColor: "#003880" }}></div>
             <p className="text-gray-600">Loading books...</p>
           </div>
         </div>

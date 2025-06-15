@@ -24,6 +24,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="/images/library.png" type="image/x-icon" />
+      </head>
       <body className={inter.className}>
         <Providers>
           <Navbar />

@@ -187,7 +187,7 @@ export default function AdminPage() {
     <div className="min-h-screen py-8" style={{ backgroundColor: "#FDFBF7" }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-4" style={{ color: "#879D82" }}>
+          <h1 className="text-3xl font-bold mb-4" style={{ color: "#003880" }}>
             Admin Panel
           </h1>
           <p className="text-gray-600">
@@ -270,7 +270,7 @@ export default function AdminPage() {
                 }`}
                 style={{
                   backgroundColor:
-                    filter === filterOption.key ? "#879D82" : undefined,
+                    filter === filterOption.key ? "#003880" : undefined,
                   border:
                     filter !== filterOption.key
                       ? "1px solid #d1d5db"

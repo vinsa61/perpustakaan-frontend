@@ -110,9 +110,10 @@ export default function BookDetailsPage({ params }: BookDetailsPageProps) {
         style={{ backgroundColor: "#FDFBF7" }}
       >
         <div className="text-center">
+          {" "}
           <div
             className="animate-spin rounded-full h-16 w-16 border-b-2 mx-auto mb-4"
-            style={{ borderColor: "#879D82" }}
+            style={{ borderColor: "#003880" }}
           ></div>
           <p className="text-gray-600">Loading book details...</p>
         </div>
@@ -134,7 +135,7 @@ export default function BookDetailsPage({ params }: BookDetailsPageProps) {
             <button
               onClick={() => router.back()}
               className="px-6 py-3 rounded-lg text-white font-medium hover:opacity-90 transition-opacity"
-              style={{ backgroundColor: "#879D82" }}
+              style={{ backgroundColor: "#003880" }}
             >
               Go Back
             </button>
@@ -187,9 +188,10 @@ export default function BookDetailsPage({ params }: BookDetailsPageProps) {
             {/* Book Information */}
             <div className="space-y-6">
               <div>
+                {" "}
                 <h1
                   className="text-3xl font-bold mb-2"
-                  style={{ color: "#879D82" }}
+                  style={{ color: "#003880" }}
                 >
                   {book.judul}
                 </h1>
@@ -201,7 +203,6 @@ export default function BookDetailsPage({ params }: BookDetailsPageProps) {
                   {publisherInfo.location && ` (${publisherInfo.location})`}
                   in {book.tahun_terbit}
                 </p>
-
                 {book.isbn && (
                   <p className="text-sm text-gray-500 mt-2">
                     ISBN: {book.isbn}
@@ -235,9 +236,10 @@ export default function BookDetailsPage({ params }: BookDetailsPageProps) {
               {/* Synopsis */}
               {book.synopsis && (
                 <div>
+                  {" "}
                   <h3
                     className="text-lg font-semibold mb-2"
-                    style={{ color: "#879D82" }}
+                    style={{ color: "#003880" }}
                   >
                     Synopsis
                   </h3>
@@ -251,7 +253,7 @@ export default function BookDetailsPage({ params }: BookDetailsPageProps) {
                 <div>
                   <h3
                     className="text-lg font-semibold mb-2"
-                    style={{ color: "#879D82" }}
+                    style={{ color: "#003880" }}
                   >
                     Author{book.pengarang.length > 1 ? "s" : ""}
                   </h3>
@@ -277,7 +279,7 @@ export default function BookDetailsPage({ params }: BookDetailsPageProps) {
                 <div>
                   <h3
                     className="text-lg font-semibold mb-2"
-                    style={{ color: "#879D82" }}
+                    style={{ color: "#003880" }}
                   >
                     Publisher
                   </h3>
@@ -298,7 +300,7 @@ export default function BookDetailsPage({ params }: BookDetailsPageProps) {
                         onClick={handleBorrowRequest}
                         disabled={borrowing}
                         className="w-full py-3 px-6 rounded-lg text-white font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-                        style={{ backgroundColor: "#879D82" }}
+                        style={{ backgroundColor: "#003880" }}
                       >
                         {borrowing ? (
                           <div className="flex items-center justify-center">
@@ -319,8 +321,8 @@ export default function BookDetailsPage({ params }: BookDetailsPageProps) {
                       onClick={() => router.push("/bookshelf")}
                       className="w-full py-3 px-6 border-2 rounded-lg font-medium hover:bg-gray-50 transition-colors"
                       style={{
-                        borderColor: "#879D82",
-                        color: "#879D82",
+                        borderColor: "#003880",
+                        color: "#003880",
                       }}
                     >
                       View My Bookshelf
@@ -334,7 +336,7 @@ export default function BookDetailsPage({ params }: BookDetailsPageProps) {
                     <button
                       onClick={() => router.push("/login")}
                       className="w-full py-3 px-6 rounded-lg text-white font-medium hover:opacity-90 transition-opacity"
-                      style={{ backgroundColor: "#879D82" }}
+                      style={{ backgroundColor: "#003880" }}
                     >
                       Sign In to Borrow
                     </button>
@@ -349,7 +351,7 @@ export default function BookDetailsPage({ params }: BookDetailsPageProps) {
         <div className="mt-8 bg-white rounded-lg shadow-sm p-6">
           <h3
             className="text-lg font-semibold mb-4"
-            style={{ color: "#879D82" }}
+            style={{ color: "#003880" }}
           >
             Book Details
           </h3>
