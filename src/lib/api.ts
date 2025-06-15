@@ -220,6 +220,32 @@ class ApiService {
     });
     return response.data;
   }
+
+  // Database Views APIs
+  async getPeminjamanAnggotaView(): Promise<ApiResponse<any>> {
+    const response = await api.get("/admin/views/peminjaman-anggota");
+    return response.data;
+  }
+
+  async getPeminjamanPerpustakaanView(): Promise<ApiResponse<any>> {
+    const response = await api.get("/admin/views/peminjaman-perpustakaan");
+    return response.data;
+  }
+
+  async getPengembalianView(): Promise<ApiResponse<any>> {
+    const response = await api.get("/admin/views/pengembalian");
+    return response.data;
+  }
+
+  async getBukuPopulerView(): Promise<ApiResponse<any>> {
+    const response = await api.get("/admin/views/buku-populer");
+    return response.data;
+  }
+
+  async getStatistikView(): Promise<ApiResponse<any>> {
+    const response = await api.get("/admin/views/statistik");
+    return response.data;
+  }
 }
 
 export const apiService = new ApiService();
